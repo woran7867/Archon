@@ -1,17 +1,43 @@
-name: Docker Image CI
+name: Build, Test and Push Docker Image
 
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
-
   build:
+    runs-on: ubuntu-latest
 
-    runs-on: linux
     steps:
-    - uses: actions/checkout@main
-    - name: Build the Docker image
-      run: docker compose up --build -d --tag archon:$(date +%s)
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # 使用 docker compose up --build -d 构建镜像
+      - name: Build with docker compose
+        run: |
+          docker compose up --build -d
+          echo "==== 容器启动中，等待10秒 ===="
+          sleep 10
+          docker compose ps
+
+      # 推送镜像到 GHCR
+      - name: Push image to GitHub Container Registry
+        run: |
+          IMAGE="ghcr.io/${{ github.repository }}:latest"
+          # 给 compose 里构建好的镜像打上 tag
+          docker tag $(docker compose images -q | head -n1) $IMAGE
+          # 推送到 GHCR
+          docker push $IMAGE
+
+      # 停止并清理容器
+      - name: Tear down
+        if: always()
+        run: docker compose down
