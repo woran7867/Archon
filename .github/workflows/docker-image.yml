@@ -31,7 +31,7 @@ jobs:
       # 推送镜像到 GHCR
       - name: Push image to GitHub Container Registry
         run: |
-          IMAGE="ghcr.io/${{ github.repository }}:latest"
+          IMAGE="ghcr.io/woran7867/archon:latest"
           # 给 compose 里构建好的镜像打上 tag
           docker tag $(docker compose images -q | head -n1) $IMAGE
           # 推送到 GHCR
