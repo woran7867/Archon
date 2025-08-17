@@ -14,6 +14,7 @@ env:
   PYTHON_VERSION: '3.12'
   REGISTRY: ghcr.io
   IMAGE_PREFIX: woran7867/archon
+  PYTHONPATH: /app
 
 jobs:
   # -------------------- Frontend Tests --------------------
@@ -64,13 +65,19 @@ jobs:
       - run: |
           case "${{ matrix.service }}" in
             server)
-              docker build -f python/Dockerfile.server -t archon-server:test python/
+              docker build -f python/Dockerfile.server -t archon-server:test \
+                --build-arg PYTHONPATH_ARG=${{ env.PYTHONPATH }} \
+                python/
               ;;
             mcp)
-              docker build -f python/Dockerfile.mcp -t archon-mcp:test python/
+              docker build -f python/Dockerfile.mcp -t archon-mcp:test \
+                --build-arg PYTHONPATH_ARG=${{ env.PYTHONPATH }} \
+                python/
               ;;
             agents)
-              docker build -f python/Dockerfile.agents -t archon-agents:test python/
+              docker build -f python/Dockerfile.agents -t archon-agents:test \
+                --build-arg PYTHONPATH_ARG=${{ env.PYTHONPATH }} \
+                python/
               ;;
             frontend)
               docker build -t archon-frontend:test archon-ui-main/
@@ -114,6 +121,8 @@ jobs:
           context: ${{ matrix.context }}
           file: ${{ matrix.file }}
           push: true
+          build-args: |
+            PYTHONPATH_ARG=${{ env.PYTHONPATH }}
           tags: |
             ${{ env.IMAGE_PREFIX }}-${{ matrix.service }}:latest
             ${{ env.IMAGE_PREFIX }}-${{ matrix.service }}:${{ github.sha }}
