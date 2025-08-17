@@ -12,7 +12,7 @@ env:
   SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY || 'demo-service-key' }}
   NODE_VERSION: '18'
   PYTHON_VERSION: '3.12'
-  REGISTRY: docker.io
+  REGISTRY: ghcr.io
   IMAGE_PREFIX: woran7867/archon
 
 jobs:
