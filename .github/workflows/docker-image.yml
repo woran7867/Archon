@@ -1,0 +1,17 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+
+    runs-on: linux
+    steps:
+    - uses: actions/checkout@main
+    - name: Build the Docker image
+      run: docker compose up --build -d --tag archon:$(date +%s)
